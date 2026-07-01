@@ -3,267 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parc | Rittenhouse Square</title>
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
+    <title>Parc | Immersive Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --gold: #c5a059;
-            --white: #ffffff;
-            --bg: #0a0a0a;
-        }
-
+        :root { --gold: #c5a059; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg);
-            color: var(--white);
+            background: #000;
+            color: #fff;
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            /* The total height determines how long the "scroll" is */
+            height: 500vh; 
         }
 
-        /* The Scrolling Container */
-        main {
-            height: 100vh;
-            overflow-y: auto;
-            scroll-snap-type: y mandatory; /* This creates the "App" feel */
-            scroll-behavior: smooth;
-        }
-
-        section {
-            position: relative;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            scroll-snap-align: start;
-        }
-
-        /* The Virtual Tour Image Logic */
-        .bg-wrapper {
-            position: absolute;
+        /* The video stays stuck in the background */
+        #video-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             z-index: 1;
+            overflow: hidden;
         }
 
-        .bg-image {
+        video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.5);
-            transition: transform 1.5s ease-out;
+            filter: brightness(0.4);
         }
 
-        /* Content Overlay */
-        .content {
+        /* This creates the text sections that scroll over the video */
+        .scroll-content {
             position: relative;
             z-index: 2;
+        }
+
+        section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
             padding: 20px;
-            max-width: 900px;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 1s ease-out;
-        }
-
-        /* Animation when section is visible */
-        section.active .content {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        section.active .bg-image {
-            transform: scale(1.1); /* Slow zoom effect like the video */
         }
 
         h1 {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(3rem, 10vw, 7rem);
+            font-size: clamp(3rem, 10vw, 6rem);
             margin-bottom: 10px;
-            letter-spacing: -2px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
         }
 
-        h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 5vw, 4rem);
-            margin-bottom: 20px;
+        /* Class to fade in text when we reach a section */
+        section.active h1 {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        p {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
+        .subtitle {
             text-transform: uppercase;
-            margin-bottom: 30px;
-            color: rgba(255,255,255,0.8);
+            letter-spacing: 5px;
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
         }
 
         .btn {
             display: inline-block;
-            padding: 15px 40px;
-            border: 1px solid var(--white);
-            color: var(--white);
+            margin-top: 30px;
+            padding: 15px 35px;
+            border: 1px solid #fff;
+            color: #fff;
             text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-size: 0.75rem;
-            transition: 0.4s;
-            background: transparent;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            transition: 0.3s;
         }
-
-        .btn:hover {
-            background: var(--white);
-            color: black;
-        }
-
-        /* Grid for Info Section */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin-top: 50px;
-        }
-
-        .info-item i { margin-bottom: 15px; display: block; color: var(--gold); }
-
-        /* Floating Navigation Dots */
-        .nav-dots {
-            position: fixed;
-            right: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            cursor: pointer;
-        }
-
-        .dot.active { background: var(--white); transform: scale(1.5); }
-
     </style>
 </head>
 <body>
 
-    <div class="nav-dots">
-        <div class="dot active" onclick="scrollToSection(0)"></div>
-        <div class="dot" onclick="scrollToSection(1)"></div>
-        <div class="dot" onclick="scrollToSection(2)"></div>
-        <div class="dot" onclick="scrollToSection(3)"></div>
+    <div id="video-container">
+        <!-- Replace 'your-video.mp4' with your actual file name later -->
+        <video id="v0" tabindex="0" autobuffer="auto" preload="auto" playsinline>
+            <source src="https://www.apple.com/105/media/us/airpods-pro/2022/d2de0310-9859-421d-9bcf-0f1d85f001be/anim/hero/large.mp4" type="video/mp4">
+        </video>
     </div>
 
-    <main id="main-scroll">
-        <!-- SECTION 1: HERO -->
-        <section class="active">
-            <div class="bg-wrapper">
-                <img src="https://images.unsplash.com/photo-1550966841-3ee32309ff44?auto=format&fit=crop&q=80&w=2000" class="bg-image" alt="Parc">
-            </div>
-            <div class="content">
-                <p>Rittenhouse Square</p>
-                <h1>PARC</h1>
-                <a href="#reserve" class="btn">Make a Reservation</a>
-            </div>
+    <div class="scroll-content">
+        <section id="step1" class="active">
+            <p class="subtitle">Philadelphia's Favorite</p>
+            <h1>PARC</h1>
         </section>
 
-        <!-- SECTION 2: THE VIBE -->
-        <section>
-            <div class="bg-wrapper">
-                <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=2000" class="bg-image" alt="The Vibe">
-            </div>
-            <div class="content">
-                <h2>Le Moment</h2>
-                <p>Traditional French Bistro Culture</p>
-                <div style="max-width: 500px; margin: 0 auto; line-height: 1.6; text-transform: none; letter-spacing: 0;">
-                    Transport yourself to the streets of Paris. From the bustling morning café to late-night steak frites.
-                </div>
-            </div>
+        <section id="step2">
+            <p class="subtitle">The Atmosphere</p>
+            <h1>Immersive Dining</h1>
         </section>
 
-        <!-- SECTION 3: THE MENU -->
-        <section>
-            <div class="bg-wrapper">
-                <img src="https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&q=80&w=2000" class="bg-image" alt="Cuisine">
-            </div>
-            <div class="content">
-                <h2>La Cuisine</h2>
-                <p>Breakfast • Lunch • Dinner</p>
-                <a href="#" class="btn">View the Menu</a>
-            </div>
+        <section id="step3">
+            <p class="subtitle">Parisian Heart</p>
+            <h1>Le Menu</h1>
+            <a href="#" class="btn">View Selection</a>
         </section>
 
-        <!-- SECTION 4: CONTACT -->
-        <section>
-            <div class="bg-wrapper">
-                <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=2000" class="bg-image" alt="Visit">
-            </div>
-            <div class="content">
-                <h2>S'il Vous Plaît</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <i data-lucide="map-pin"></i>
-                        <strong>LOCATION</strong>
-                        <div style="margin-top:10px">227 S 18th St<br>Philadelphia, PA</div>
-                    </div>
-                    <div class="info-item">
-                        <i data-lucide="clock"></i>
-                        <strong>HOURS</strong>
-                        <div style="margin-top:10px">Mon-Sun<br>8:00 AM - 10:00 PM</div>
-                    </div>
-                    <div class="info-item">
-                        <i data-lucide="phone"></i>
-                        <strong>CONTACT</strong>
-                        <div style="margin-top:10px">215.545.2262<br>parc@starr-restaurants.com</div>
-                    </div>
-                </div>
-            </div>
+        <section id="step4">
+            <p class="subtitle">Join Us</p>
+            <h1>Reserve</h1>
         </section>
-    </main>
+    </div>
 
     <script>
-        // Initialize Icons
-        lucide.createIcons();
-
-        // Scroll Animation Logic
+        const video = document.getElementById('v0');
         const sections = document.querySelectorAll('section');
-        const dots = document.querySelectorAll('.dot');
-        const main = document.getElementById('main-scroll');
 
-        main.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach((section, index) => {
-                const sectionTop = section.offsetTop;
-                if (main.scrollTop >= sectionTop - 100) {
-                    current = index;
+        // 1. SCROLL VIDEO LOGIC
+        // This maps the scroll position to the video timeline
+        window.onscroll = function() {
+            const scrollPos = window.pageYOffset;
+            const maxScroll = document.body.offsetHeight - window.innerHeight;
+            const scrollFraction = scrollPos / maxScroll;
+            
+            if (video.duration) {
+                // This is the magic line that plays the video forward and backward
+                video.currentTime = video.duration * scrollFraction;
+            }
+
+            // 2. TEXT ANIMATION LOGIC
+            // Checks which section we are in to fade text in
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5) {
+                    section.classList.add('active');
+                } else {
+                    section.classList.remove('active');
                 }
             });
+        };
 
-            sections.forEach((s, i) => {
-                s.classList.remove('active');
-                dots[i].classList.remove('active');
-                if (i === current) {
-                    s.classList.add('active');
-                    dots[i].classList.add('active');
-                }
-            });
-        });
-
-        function scrollToSection(index) {
-            sections[index].scrollIntoView({ behavior: 'smooth' });
-        }
+        // Standard setup to make sure video is ready
+        video.pause(); 
     </script>
 </body>
 </html>
